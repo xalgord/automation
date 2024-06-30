@@ -70,12 +70,19 @@ echo -e "${GREEN}Removing separate files..."
 echo -e "${BLUE}-----------------------------------------${NC}"
 rm *
 
-echo -e "${BLUE}-----------------------------------------"
-echo -e "${YELLOW}Reconnaissance completed for $domain"
-echo -e "${BLUE}-----------------------------------------${NC}"
-
 # new subdomains
 echo -e "${BLUE}-----------------------------------------"
 echo -e "${GREEN}New subdomains found..."
 echo -e "${BLUE}-----------------------------------------${NC}"
 cat ../all.txt | anew ../new-subdomains.txt | tee ../new.txt
+
+# Extracting important subdomains
+echo -e "${BLUE}-----------------------------------------"
+echo -e "${GREEN}Extracting important subdomains..."
+echo -e "${BLUE}-----------------------------------------${NC}"
+cd ..
+python3 ~/tools/spyhunt/spyhunt.py -isubs new.txt
+
+echo -e "${BLUE}-----------------------------------------"
+echo -e "${YELLOW}Reconnaissance completed for $domain"
+echo -e "${BLUE}-----------------------------------------${NC}"
