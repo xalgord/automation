@@ -58,17 +58,23 @@ echo -e "${GREEN}Running Spyhunt..."
 echo -e "${BLUE}-----------------------------------------${NC}"
 python3 ~/tools/spyhunt/spyhunt.py -s $domain -sv spyhunt.txt
 
+# Run bbot
+echo -e "${BLUE}-----------------------------------------"
+echo -e "${GREEN}Running bbot..."
+echo -e "${BLUE}-----------------------------------------${NC}"
+printf '\n%.0s' {1..3} | bbot -t $domain -f subdomain-enum -o .
+
 # Merge all subdomains into all.txt
 echo -e "${BLUE}-----------------------------------------"
 echo -e "${GREEN}Merging all subdomains into all.txt..."
 echo -e "${BLUE}-----------------------------------------${NC}"
-cat * | sort -u > ../all.txt
+cat *.txt */subdomains.txt | sort -u > ../all.txt
 
 # Remove separate files
 echo -e "${BLUE}-----------------------------------------"
 echo -e "${GREEN}Removing separate files..."
 echo -e "${BLUE}-----------------------------------------${NC}"
-rm *
+rm -rf *
 
 # new subdomains
 echo -e "${BLUE}-----------------------------------------"
@@ -82,6 +88,18 @@ echo -e "${GREEN}Extracting important subdomains..."
 echo -e "${BLUE}-----------------------------------------${NC}"
 cd ..
 python3 ~/tools/spyhunt/spyhunt.py -isubs new.txt
+
+# Port Scan
+echo -e "${BLUE}-----------------------------------------"
+echo -e "${GREEN}Running Port Scan..."
+echo -e "${BLUE}-----------------------------------------${NC}"
+smap -iL juice_subs.txt > ports.txt
+
+# Running HTTPX
+echo -e "${BLUE}-----------------------------------------"
+echo -e "${GREEN}Running httpx..."
+echo -e "${BLUE}-----------------------------------------${NC}"
+cat juice_subs.txt | httpx -sc -title -cl -probe | grep -v "FAILED" | anew juicy-live.txt
 
 echo -e "${BLUE}-----------------------------------------"
 echo -e "${YELLOW}Reconnaissance completed for $domain"
