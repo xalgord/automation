@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set the domain
-domain="att.com"
+domain="dell.com"
 
 # Colors
 RED='\033[0;31m'
@@ -20,14 +20,6 @@ echo -e "${GREEN}Removing separate files..."
 echo -e "${BLUE}-----------------------------------------${NC}"
 touch "test.txt"
 rm -rf *
-
-# Download and unzip the subdomains file from chaos
-echo -e "${BLUE}-----------------------------------------"
-echo -e "${GREEN}Downloading and unzipping the subdomains file from chaos..."
-echo -e "${BLUE}-----------------------------------------${NC}"
-wget "https://chaos-data.projectdiscovery.io/at&t.zip"
-unzip at\&t.zip
-rm at\&t.zip
 
 # Run assetfinder
 echo -e "${BLUE}-----------------------------------------"
@@ -59,23 +51,18 @@ echo -e "${GREEN}Running Spyhunt..."
 echo -e "${BLUE}-----------------------------------------${NC}"
 python3 ~/tools/spyhunt/spyhunt.py -s $domain -sv spyhunt.txt
 
-# # Run bbot
-# echo -e "${BLUE}-----------------------------------------"
-# echo -e "${GREEN}Running bbot..."
-# echo -e "${BLUE}-----------------------------------------${NC}"
-# printf '\n%.0s' {1..3} | bbot -t $domain -f subdomain-enum -o .
-
 # Merge all subdomains into all.txt
 echo -e "${BLUE}-----------------------------------------"
 echo -e "${GREEN}Merging all subdomains into all.txt..."
 echo -e "${BLUE}-----------------------------------------${NC}"
-cat *.txt */subdomains.txt | sort -u > ../all.txt
+cat *.txt | sort -u > ../all.txt
 
-# # new subdomains
-# echo -e "${BLUE}-----------------------------------------"
-# echo -e "${GREEN}New subdomains found..."
-# echo -e "${BLUE}-----------------------------------------${NC}"
-# cat ../all.txt | anew ../new-subdomains.txt | tee ../new.txt
+# Running HTTPX
+echo -e "${BLUE}-----------------------------------------"
+echo -e "${GREEN}Running httpx on all.txt..."
+echo -e "${BLUE}-----------------------------------------${NC}"
+cat all.txt | httpx -sc -title -cl -probe | grep -v "FAILED" | anew juicy-live.txt
+cat juicy-live.txt | sed 's|^[^/]*//||' | cut -d '/' -f 1 | cut -d " " -f 1 > new.txt 
 
 # Extracting important subdomains
 echo -e "${BLUE}-----------------------------------------"
@@ -84,12 +71,18 @@ echo -e "${BLUE}-----------------------------------------${NC}"
 cd ..
 python3 ~/tools/spyhunt/spyhunt.py -isubs new.txt
 
-# Running HTTPX
+# Getting Endpoints
 echo -e "${BLUE}-----------------------------------------"
-echo -e "${GREEN}Running httpx on all.txt..."
+echo -e "${GREEN}Getting endpoints..."
 echo -e "${BLUE}-----------------------------------------${NC}"
-cat all.txt | httpx -sc -title -cl -probe | grep -v "FAILED" | anew juicy-live.txt
-cat juicy-live.txt | sed 's|^[^/]*//||' | cut -d '/' -f 1 | cut -d " " -f 1 > new.txt 
+katana -list new.txt -jc -d 6 | tee -a endpoints.txt
+cat new.txt | gau >> endpoints.txt
+
+# Checking for xss
+echo -e "${BLUE}-----------------------------------------"
+echo -e "${GREEN}Checking for xss..."
+echo -e "${BLUE}-----------------------------------------${NC}"
+cat endpoints.txt | uro | kxss | grep "<" | tee possible-xss.txt | notify
 
 # Port Scan
 echo -e "${BLUE}-----------------------------------------"
@@ -101,7 +94,7 @@ naabu -l new.txt -o ports.txt
 echo -e "${BLUE}-----------------------------------------"
 echo -e "${GREEN}Running nuclei scan..."
 echo -e "${BLUE}-----------------------------------------${NC}"
-nuclei -l new.txt -es info,low | tee vulns.txt
+nuclei -l new.txt -es info,low | tee vulns.txt | notify
 
 echo -e "${BLUE}-----------------------------------------"
 echo -e "${YELLOW}Reconnaissance completed for $domain"
