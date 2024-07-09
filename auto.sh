@@ -61,6 +61,7 @@ cat *.txt | sort -u > ../all.txt
 echo -e "${BLUE}-----------------------------------------"
 echo -e "${GREEN}Running httpx on all.txt..."
 echo -e "${BLUE}-----------------------------------------${NC}"
+cd ..
 cat all.txt | httpx -sc -title -cl -probe | grep -v "FAILED" | anew juicy-live.txt
 cat juicy-live.txt | sed 's|^[^/]*//||' | cut -d '/' -f 1 | cut -d " " -f 1 > new.txt 
 
@@ -68,7 +69,6 @@ cat juicy-live.txt | sed 's|^[^/]*//||' | cut -d '/' -f 1 | cut -d " " -f 1 > ne
 echo -e "${BLUE}-----------------------------------------"
 echo -e "${GREEN}Extracting important subdomains..."
 echo -e "${BLUE}-----------------------------------------${NC}"
-cd ..
 python3 ~/tools/spyhunt/spyhunt.py -isubs new.txt
 
 # Getting Endpoints
