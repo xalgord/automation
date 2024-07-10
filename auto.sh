@@ -75,8 +75,9 @@ python3 ~/tools/spyhunt/spyhunt.py -isubs new.txt
 echo -e "${BLUE}-----------------------------------------"
 echo -e "${GREEN}Getting endpoints..."
 echo -e "${BLUE}-----------------------------------------${NC}"
-katana -list new.txt -jc -d 6 | tee -a endpoints.txt
-cat new.txt | gau >> endpoints.txt
+katana -list new.txt -jc -d 6 -o endpoints.txt
+cat new.txt | gau | anew endpoints.txt
+waymore -i lyft.com -mode U -oU waymore.txt && cat waymore.txt | anew endpoints.txt
 
 # Checking for xss
 echo -e "${BLUE}-----------------------------------------"
@@ -90,11 +91,17 @@ echo -e "${GREEN}Running Port Scan..."
 echo -e "${BLUE}-----------------------------------------${NC}"
 naabu -l new.txt -o ports.txt
 
+# Nucleifuzzer
+echo -e "${BLUE}-----------------------------------------"
+echo -e "${GREEN}Running NucleiFuzzer..."
+echo -e "${BLUE}-----------------------------------------${NC}"
+nf -d $domain
+
 # Running Nuclei
 echo -e "${BLUE}-----------------------------------------"
 echo -e "${GREEN}Running nuclei scan..."
 echo -e "${BLUE}-----------------------------------------${NC}"
-nuclei -l new.txt -es info,low | tee vulns.txt | notify
+nuclei -l new.txt -es info,low -rl 25 | tee vulns.txt | notify
 
 echo -e "${BLUE}-----------------------------------------"
 echo -e "${YELLOW}Reconnaissance completed for $domain"
