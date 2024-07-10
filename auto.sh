@@ -70,6 +70,7 @@ echo -e "${BLUE}-----------------------------------------"
 echo -e "${GREEN}Extracting important subdomains..."
 echo -e "${BLUE}-----------------------------------------${NC}"
 python3 ~/tools/spyhunt/spyhunt.py -isubs new.txt
+clear
 
 # Getting Endpoints
 echo -e "${BLUE}-----------------------------------------"
@@ -78,6 +79,7 @@ echo -e "${BLUE}-----------------------------------------${NC}"
 katana -list new.txt -jc -d 6 -o endpoints.txt
 cat new.txt | gau | anew endpoints.txt
 waymore -i lyft.com -mode U -oU waymore.txt && cat waymore.txt | anew endpoints.txt
+clear
 
 # Checking for xss
 echo -e "${BLUE}-----------------------------------------"
