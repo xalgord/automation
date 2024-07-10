@@ -76,8 +76,7 @@ clear
 echo -e "${BLUE}-----------------------------------------"
 echo -e "${GREEN}Getting endpoints..."
 echo -e "${BLUE}-----------------------------------------${NC}"
-katana -list new.txt -jc -d 6 -o endpoints.txt
-cat new.txt | gau | anew endpoints.txt
+cat new.txt | gau > anew endpoints.txt
 waymore -i lyft.com -mode U -oU waymore.txt && cat waymore.txt | anew endpoints.txt
 clear
 
