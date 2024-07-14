@@ -1,0 +1,5 @@
+bluemix.net
+ibmcloud.com
+raleigh.ibm.com
+austin.ibm.com
+ibm.com
